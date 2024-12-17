@@ -53,8 +53,8 @@ def fetch_data(connection, route_name, price_range, price_sort_order, duration_r
     
     # Transform the Bus_Type column to group it into categories
     df['Bus_Type'] = df['Bus_Type'].apply(
-        lambda x: 'AC' if 'AC' in x.upper() else 
-                  ('Non-AC' if 'NON A/C' in x.upper() else 
+        lambda x: 'AC' if 'AC' in x.upper() or 'A/C' in x.upper() or 'A.C' in x.upper() else 
+                  ('Non-AC' if 'NON A/C' in x.upper() or 'NON AC' in x.upper() or 'NON-AC' in x.upper() else 
                    ('Sleeper' if 'SLEEPER' in x.upper() else 'Seater'))
     )
     
@@ -94,9 +94,14 @@ def main():
                     # Sidebar - Select Price Range filter
                     price_range = st.sidebar.selectbox("Choose Bus Fare Range", ['0-500', '500-1000', '1000-2000', '2000 and above'])
 
-                    # Sidebar - Duration filter (in hours or minutes, e.g., 0 to 10 hours)
-                    min_duration = st.sidebar.number_input('Minimum Duration (in hours)', min_value=0, value=0)
-                    max_duration = st.sidebar.number_input('Maximum Duration (in hours)', min_value=0, value=10)
+                    # Sidebar - Duration filter using st.slider (in hours or minutes, e.g., 0 to 10 hours)
+                    min_duration, max_duration = st.sidebar.slider(
+                        'Select Duration Range (hours)',
+                        min_value=0,
+                        max_value=24,
+                        value=(0, 10),
+                        step=1
+                    )
                     duration_range = (min_duration, max_duration)
 
                     # Fetch data based on selected Route_Name, price range, price sort order, and duration range
